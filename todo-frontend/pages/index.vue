@@ -5,37 +5,21 @@
         <!-- 通常のHTMLとは異なりvueファイルでは{{ 変数名 }}でJavaScriptの変数の値をそのまま表示できる -->
         {{ title }}
       </h1>
-      <h2>タスクを管理します。</h2>
+      <h2 class="mb-30">タスクを管理します。</h2>
       <div>
         <div>
           <!-- タスク名を入力するinput -->
           <p>タスク名を入力</p>
-          <input v-model="editTask">
+          <input v-model="editTask" class="mb-8">
           <!-- 詳細を入力するinput -->
           <p>詳細を入力</p>
           <!-- v-model="変数名" で変数にそのデータを反映させる -->
-          <input v-model="editDetail">
+          <input v-model="editDetail" class="mb-8">
         </div>
-        <button @click="addTodo">TODO追加</button>
+        <Button @click="addTodo" label="追加" class="mb-30" />
 
-        <!--
-        <div v-if="displayEdit">
-          <h3>タスクの編集</h3>
-          <p>{{ editItem.id + 1 }}番目の要素を編集します</p>
-          <div>
-            <p>タスク名</p>
-            <input v-model="editItem.task">
-            <p>詳細</p>
-            <input v-model="editItem.detail">
-          </div>
-          <div style="display: flex;">
-            <button @click="submitEdit">保存</button>
-            <button @click="displayEdit = false">キャンセル</button>
-          </div>
-        </div>
-        -->
         <!-- v-ifで要素の表示・非表示を切り替える -->
-        <div v-if="displayEdit">
+        <div v-if="displayEdit" class="mb-30">
           <h3>タスクの編集</h3>
           <p>{{ editPlusOne }}番目の要素を編集します</p>
           <div>
@@ -50,36 +34,46 @@
           </div>
         </div>
 
-        <table border="3">
-          <tr>
-            <th>ID</th>
-            <th>タスク名</th>
-            <th>詳細</th>
-            <th>編集</th>
-          </tr>
-          <!--
-            v-forで要素を繰り返し表示する設定を行なっている
-            JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
-          -->
-          <tbody>
-            <tr v-for="(todo, idx) in todoList" :key="idx">
-              <td>{{ idx }}</td>
-              <td>{{ todo.task }}</td>
-              <td>{{ todo.detail }}</td>
-              <td>
-                <button @click="editTodo(idx)">編集</button>
-                <button @click="deleteTodo(idx)">削除</button>
-              </td>
+        <div class="mb-30">
+          <p class="mb-8">現在進行中のタスク</p>
+          <table border="3" style="width: 100%;">
+            <tr>
+              <th>ID</th>
+              <th>タスク名</th>
+              <th>詳細</th>
+              <th>編集</th>
             </tr>
-          </tbody>
-        </table>
+            <!--
+              v-forで要素を繰り返し表示する設定を行なっている
+              JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
+            -->
+            <tbody>
+              <tr v-for="(todo, idx) in todoList" :key="idx">
+                <td>{{ idx }}</td>
+                <td>{{ todo.task }}</td>
+                <td>{{ todo.detail }}</td>
+                <td>
+                  <Button @click="editTodo(idx)" label="編集" />
+                  <delete-button @click="deleteTodo(idx)" label="削除" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Button from '~/components/Button.vue';
+import DeleteButton from '~/components/DeleteButton.vue';
+
 export default {
+  components: {
+    Button,
+    DeleteButton
+  },
   data() {
     return {
       title: 'TODOアプリ',
@@ -164,9 +158,10 @@ export default {
 
 <style>
 .container {
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   text-align: center;
+  padding: 40px;
 }
 
 .title {
@@ -182,8 +177,17 @@ export default {
     sans-serif;
   display: block;
   font-weight: 300;
-  font-size: 100px;
+  font-size: 80px;
   color: #35495e;
   letter-spacing: 1px;
+}
+.flex {
+  display: flex;
+}
+.mb-30 {
+  margin-bottom: 30px;
+}
+.mb-8 {
+  margin-bottom: 8px;
 }
 </style>

@@ -18,58 +18,15 @@
         </div>
         <button @click="addTodo">TODO追加</button>
 
-        <!--
-        <div v-if="displayEdit">
-          <h3>タスクの編集</h3>
-          <p>{{ editItem.id + 1 }}番目の要素を編集します</p>
-          <div>
-            <p>タスク名</p>
-            <input v-model="editItem.task">
-            <p>詳細</p>
-            <input v-model="editItem.detail">
-          </div>
-          <div style="display: flex;">
-            <button @click="submitEdit">保存</button>
-            <button @click="displayEdit = false">キャンセル</button>
-          </div>
-        </div>
-        -->
-        <!-- v-ifで要素の表示・非表示を切り替える -->
-        <div v-if="displayEdit">
-          <h3>タスクの編集</h3>
-          <p>{{ editPlusOne }}番目の要素を編集します</p>
-          <div>
-            <p>タスク名</p>
-            <input v-model="editItem.task">
-            <p>詳細</p>
-            <input v-model="editItem.detail">
-          </div>
-          <div>
-            <button @click="submitEdit">保存</button>
-            <button @click="cancelEdit">キャンセル</button>
-          </div>
-        </div>
-
         <table border="3">
           <tr>
-            <th>ID</th>
             <th>タスク名</th>
             <th>詳細</th>
-            <th>編集</th>
           </tr>
-          <!--
-            v-forで要素を繰り返し表示する設定を行なっている
-            JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
-          -->
           <tbody>
             <tr v-for="(todo, idx) in todoList" :key="idx">
-              <td>{{ idx }}</td>
               <td>{{ todo.task }}</td>
               <td>{{ todo.detail }}</td>
-              <td>
-                <button @click="editTodo(idx)">編集</button>
-                <button @click="deleteTodo(idx)">削除</button>
-              </td>
             </tr>
           </tbody>
         </table>
@@ -82,7 +39,7 @@
 export default {
   data() {
     return {
-      title: 'TODOアプリ',
+      title: 'thirdplace',
       todoList: [
         { task: '掃除する', detail: '部屋の掃除を本日中にやる' },
         { task: '課題やる', detail: '線形代数の課題を今週中に' },

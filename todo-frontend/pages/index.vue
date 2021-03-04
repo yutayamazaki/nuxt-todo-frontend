@@ -5,16 +5,18 @@
         <!-- 通常のHTMLとは異なりvueファイルでは{{ 変数名 }}でJavaScriptの変数の値をそのまま表示できる -->
         {{ title }}
       </h1>
-      <h2 class="mb-30">タスクを管理します。</h2>
+      <div>
+        <nuxt-link to="/manage">管理画面を開く</nuxt-link>
+      </div>
       <div>
         <div>
           <!-- タスク名を入力するinput -->
           <p>タスク名を入力</p>
-          <input v-model="editTask" class="mb-8">
+          <input v-model="editTask" class="mb-8 todo-input">
           <!-- 詳細を入力するinput -->
           <p>詳細を入力</p>
           <!-- v-model="変数名" で変数にそのデータを反映させる -->
-          <input v-model="editDetail" class="mb-8">
+          <input v-model="editDetail" class="mb-8 todo-input">
         </div>
         <Button @click="addTodo" label="追加" class="mb-30" />
 
@@ -24,23 +26,27 @@
           <p>{{ editPlusOne }}番目の要素を編集します</p>
           <div>
             <p>タスク名</p>
-            <input v-model="editItem.task">
+            <input v-model="editItem.task" class="mb-8 todo-input">
             <p>詳細</p>
-            <input v-model="editItem.detail">
+            <input v-model="editItem.detail" class="mb-8 todo-input">
+            <p>状態</p>
+            <select v-model="editItem.state" class="state-select mb-8">
+              <option v-for="(state, j) in stateList" :key="j">{{ state }}</option>
+            </select>
           </div>
           <div>
-            <button @click="submitEdit">保存</button>
-            <button @click="cancelEdit">キャンセル</button>
+            <Button @click="submitEdit" label="保存" />
+            <cancel-button @click="cancelEdit" label="キャンセル" />
           </div>
         </div>
 
         <div class="mb-30">
-          <p class="mb-8">現在進行中のタスク</p>
-          <table border="3" style="width: 100%;">
+          <table style="width: 100%;" class="todo-table">
             <tr>
               <th>ID</th>
               <th>タスク名</th>
               <th>詳細</th>
+              <th>状態</th>
               <th>編集</th>
             </tr>
             <!--
@@ -52,6 +58,7 @@
                 <td>{{ idx }}</td>
                 <td>{{ todo.task }}</td>
                 <td>{{ todo.detail }}</td>
+                <td>{{ todo.state }}</td>
                 <td>
                   <Button @click="editTodo(idx)" label="編集" />
                   <delete-button @click="deleteTodo(idx)" label="削除" />
@@ -67,32 +74,37 @@
 
 <script>
 import Button from '~/components/Button.vue';
+import CancelButton from '~/components/CancelButton.vue';
 import DeleteButton from '~/components/DeleteButton.vue';
 
 export default {
   components: {
     Button,
+    CancelButton,
     DeleteButton
   },
   data() {
     return {
       title: 'TODOアプリ',
       todoList: [
-        { task: '掃除する', detail: '部屋の掃除を本日中にやる' },
-        { task: '課題やる', detail: '線形代数の課題を今週中に' },
-        { task: '寝る', detail: '8時間寝る' }
+        { task: '掃除する', detail: '部屋の掃除を本日中にやる', state: '未着手' },
+        { task: '課題やる', detail: '線形代数の課題を今週中に', state: '完了' },
+        { task: '寝る', detail: '8時間寝る', state: '作業中' }
       ],
       // 編集用のdataを追加する
       editTask: '',
       editDetail: '',
+      editState: '',
       // 編集用のデータ
       editItem: {
         id: null, // 何番目の要素を編集するのか
         task: '', // 編集するタスク名
-        detail: '' // 編集するタスク詳細
+        detail: '', // 編集するタスク詳細
+        state: ''
       },
       // trueで編集の要素が表示されて、falseで要素が表示されない
-      displayEdit: false
+      displayEdit: false,
+      stateList: ['未着手', '作業中', '完了']
     }
   },
   // 関数のように書いて変数のようにアクセスする
@@ -131,7 +143,8 @@ export default {
       this.editItem = {
         id: id,
         task: this.todoList[id].task,
-        detail: this.todoList[id].detail
+        detail: this.todoList[id].detail,
+        state: this.todoList[id].state
       }
     },
     // 編集をキャンセルする
@@ -146,7 +159,8 @@ export default {
       // 変更されたtodoデータ
       const newTodo = {
         task: this.editItem.task,
-        detail: this.editItem.detail
+        detail: this.editItem.detail,
+        state: this.editItem.state
       }
       // id番目の要素を編集後のデータに変更する
       this.todoList[id] = newTodo;
@@ -189,5 +203,48 @@ export default {
 }
 .mb-8 {
   margin-bottom: 8px;
+}
+
+.todo-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.todo-table td, .todo-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.todo-table tr:hover {
+  background-color: #ddd;
+}
+
+.todo-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #007bff;
+  color: white;
+}
+
+.todo-input {
+  width: 30%;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 2px solid #ddd;
+  box-sizing: border-box;
+}
+
+.state-select {
+  width: 30%;
+  padding: .375rem 2.25rem .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: .25rem;
 }
 </style>

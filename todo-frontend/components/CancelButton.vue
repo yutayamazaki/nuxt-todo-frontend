@@ -1,5 +1,5 @@
 <template>
-  <button @click="click" class="delete-btn">{{ label }}</button>
+  <button @click="click" class="cancel-btn">{{ label }}</button>
 </template>
 
 <script>
@@ -16,12 +16,12 @@ export default {
 </script>
 
 <style>
-.delete-btn {
-  background-color: #dc3545;
+.cancel-btn {
+  background-color: #FFFFFF;
   border: 1px solid transparent;
-  border-color: #dc3545;
+  border-color: #007bff;
   border-radius: .25rem;
-  color: white;
+  color: #007bff;
   padding: .300rem .75rem;
   text-align: center;
   display: inline-block;
@@ -29,8 +29,8 @@ export default {
   transition-duration: 0.4s;
   cursor: pointer;
 }
-.delete-btn:hover {
-  background-color: #cc3040;
-  color: white;
+.cancel-btn:hover {
+  background-color: #eeeeee;
+  color: #007bff;
 }
 </style>

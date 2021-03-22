@@ -10,51 +10,54 @@
         <div>
           <!-- タスク名を入力するinput -->
           <p>タスク名を入力</p>
-          <input v-model="editTask">
+          <input class="todo-input mb-8" v-model="editTask">
           <!-- 詳細を入力するinput -->
           <p>詳細を入力</p>
           <!-- v-model="変数名" で変数にそのデータを反映させる -->
-          <input v-model="editDetail">
+          <input class="todo-input mb-8" v-model="editDetail">
+          <p>状態を選択</p>
+          <select v-model="editState">
+            <option
+              v-for="(state, idx) in stateList"
+              :key="idx"
+            >
+              {{ state }}
+            </option>
+          </select>
         </div>
-        <button @click="addTodo">TODO追加</button>
+        <my-button @click="addTodo" label="追加" class="mb-30" />
 
-        <!--
-        <div v-if="displayEdit">
-          <h3>タスクの編集</h3>
-          <p>{{ editItem.id + 1 }}番目の要素を編集します</p>
-          <div>
-            <p>タスク名</p>
-            <input v-model="editItem.task">
-            <p>詳細</p>
-            <input v-model="editItem.detail">
-          </div>
-          <div style="display: flex;">
-            <button @click="submitEdit">保存</button>
-            <button @click="displayEdit = false">キャンセル</button>
-          </div>
-        </div>
-        -->
         <!-- v-ifで要素の表示・非表示を切り替える -->
-        <div v-if="displayEdit">
+        <div v-if="displayEdit" class="mb-30">
           <h3>タスクの編集</h3>
           <p>{{ editPlusOne }}番目の要素を編集します</p>
           <div>
             <p>タスク名</p>
-            <input v-model="editItem.task">
+            <input class="todo-input mb-8" v-model="editItem.task">
             <p>詳細</p>
-            <input v-model="editItem.detail">
+            <input class="todo-input mb-8" v-model="editItem.detail">
+            <p>状態</p>
+            <select v-model="editItem.state">
+              <option
+                v-for="(state, idx) in stateList"
+                :key="idx"
+              >
+                {{ state }}
+              </option>
+            </select>
           </div>
           <div>
-            <button @click="submitEdit">保存</button>
-            <button @click="cancelEdit">キャンセル</button>
+            <my-button @click="submitEdit" label="保存" />
+            <cancel-button @click="cancelEdit" label="キャンセル" />
           </div>
         </div>
 
-        <table border="3">
+        <table class="todo-table">
           <tr>
             <th>ID</th>
             <th>タスク名</th>
             <th>詳細</th>
+            <th>状態</th>
             <th>編集</th>
           </tr>
           <!--
@@ -62,13 +65,15 @@
             JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
           -->
           <tbody>
-            <tr v-for="(todo, idx) in todoList" :key="idx">
-              <td>{{ idx }}</td>
+            <tr v-for="(todo, idx) in todoItems" :key="idx">
+              <td>{{ todo.id }}</td>
               <td>{{ todo.task }}</td>
               <td>{{ todo.detail }}</td>
+              <td>{{ todo.state }}</td>
               <td>
-                <button @click="editTodo(idx)">編集</button>
-                <button @click="deleteTodo(idx)">削除</button>
+                <!-- <my-button @click="editTodo(idx)" label="編集" /> -->
+                <my-button @click="editTodo(todo.id)" label="編集" />
+                <delete-button @click="deleteTodo(todo.id)" label="削除" />
               </td>
             </tr>
           </tbody>
@@ -79,26 +84,41 @@
 </template>
 
 <script>
+import CancelButton from '~/components/CancelButton.vue';
+import DeleteButton from '~/components/DeleteButton.vue';
+import MyButton from '~/components/MyButton.vue';
+
 export default {
+  // このvueファイルで使用する
+  // components(vueファイル)を指定する
+  components: {
+    CancelButton,
+    DeleteButton,
+    MyButton
+  },
   data() {
     return {
       title: 'TODOアプリ',
       todoList: [
-        { task: '掃除する', detail: '部屋の掃除を本日中にやる' },
-        { task: '課題やる', detail: '線形代数の課題を今週中に' },
-        { task: '寝る', detail: '8時間寝る' }
+        { task: '掃除する', detail: '部屋の掃除を本日中にやる', state: '未着手' },
+        { task: '課題やる', detail: '線形代数の課題を今週中に', state: '作業中' },
+        { task: '寝る', detail: '8時間寝る', state: '完了' }
       ],
-      // 編集用のdataを追加する
+      // 追加用のdataを追加する
       editTask: '',
       editDetail: '',
+      editState: '未着手', // 状態を追加
       // 編集用のデータ
       editItem: {
         id: null, // 何番目の要素を編集するのか
         task: '', // 編集するタスク名
-        detail: '' // 編集するタスク詳細
+        detail: '', // 編集するタスク詳細
+        state: '' // 編集する状態
       },
       // trueで編集の要素が表示されて、falseで要素が表示されない
-      displayEdit: false
+      displayEdit: false,
+      // 状態の選択肢
+      stateList: ['未着手', '作業中', '完了']
     }
   },
   // 関数のように書いて変数のようにアクセスする
@@ -116,18 +136,20 @@ export default {
   methods: {
     // todoリストの要素を追加する
     addTodo() {
-      const todo = { task: this.editTask, detail: this.editDetail };
-      this.todoList.push(todo);
+      const todo = {
+        task: this.editTask,
+        detail: this.editDetail,
+        state: this.editState
+      };
+      // dispatchでactionsを呼び出す 'storeのファイル名/actionの名前'
+      this.$store.dispatch('todo/addTodoItems', todo);
       // 追加後にinputの中身を空にする
       this.editTask = '';
       this.editDetail = '';
     },
     // todoリストの要素を削除する
     deleteTodo(id) {
-      // id番目の要素を削除
-      // Array.splice(a, b)
-      // a番目の要素からb個要素を取り出す
-      this.todoList.splice(id, 1);
+      this.$store.dispatch('todo/deleteTodoItem', id);
     },
     // id番目の要素を編集する
     editTodo(id) {
@@ -137,7 +159,8 @@ export default {
       this.editItem = {
         id: id,
         task: this.todoList[id].task,
-        detail: this.todoList[id].detail
+        detail: this.todoList[id].detail,
+        state: this.todoList[id].state
       }
     },
     // 編集をキャンセルする
@@ -152,7 +175,8 @@ export default {
       // 変更されたtodoデータ
       const newTodo = {
         task: this.editItem.task,
-        detail: this.editItem.detail
+        detail: this.editItem.detail,
+        state: this.editItem.state
       }
       // id番目の要素を編集後のデータに変更する
       this.todoList[id] = newTodo;
@@ -164,9 +188,10 @@ export default {
 
 <style>
 .container {
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   text-align: center;
+  padding: 40px;
 }
 
 .title {
@@ -182,8 +207,44 @@ export default {
     sans-serif;
   display: block;
   font-weight: 300;
-  font-size: 100px;
+  font-size: 80px;
   color: #35495e;
   letter-spacing: 1px;
+}
+
+.todo-input {
+  width: 30%;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 2px solid #ddd;
+  box-sizing: border-box;
+}
+
+.todo-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+.todo-table td, .todo-table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.todo-table tr:hover {
+  background-color: #ddd;
+}
+.todo-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #007bff;
+  color: white;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+.mb-30 {
+  margin-bottom: 30px;
 }
 </style>

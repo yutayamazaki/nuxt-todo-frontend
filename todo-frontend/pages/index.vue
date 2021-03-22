@@ -12,13 +12,22 @@
         <div>
           <!-- タスク名を入力するinput -->
           <p>タスク名を入力</p>
-          <input v-model="editTask" class="mb-8 todo-input">
+          <input class="todo-input mb-8" v-model="editTask">
           <!-- 詳細を入力するinput -->
           <p>詳細を入力</p>
           <!-- v-model="変数名" で変数にそのデータを反映させる -->
-          <input v-model="editDetail" class="mb-8 todo-input">
+          <input class="todo-input mb-8" v-model="editDetail">
+          <p>状態を選択</p>
+          <select v-model="editState">
+            <option
+              v-for="(state, idx) in stateList"
+              :key="idx"
+            >
+              {{ state }}
+            </option>
+          </select>
         </div>
-        <Button @click="addTodo" label="追加" class="mb-30" />
+        <my-button @click="addTodo" label="追加" class="mb-30" />
 
         <!-- v-ifで要素の表示・非表示を切り替える -->
         <div v-if="displayEdit" class="mb-30">
@@ -26,81 +35,82 @@
           <p>{{ editPlusOne }}番目の要素を編集します</p>
           <div>
             <p>タスク名</p>
-            <input v-model="editItem.task" class="mb-8 todo-input">
+            <input class="todo-input mb-8" v-model="editItem.task">
             <p>詳細</p>
-            <input v-model="editItem.detail" class="mb-8 todo-input">
+            <input class="todo-input mb-8" v-model="editItem.detail">
             <p>状態</p>
-            <select v-model="editItem.state" class="state-select mb-8">
-              <option v-for="(state, j) in stateList" :key="j">{{ state }}</option>
+            <select v-model="editItem.state">
+              <option
+                v-for="(state, idx) in stateList"
+                :key="idx"
+              >
+                {{ state }}
+              </option>
             </select>
           </div>
           <div>
-            <Button @click="submitEdit" label="保存" />
+            <my-button @click="submitEdit" label="保存" />
             <cancel-button @click="cancelEdit" label="キャンセル" />
           </div>
         </div>
 
-        <div class="mb-30">
-          <table style="width: 100%;" class="todo-table">
-            <tr>
-              <th>ID</th>
-              <th>タスク名</th>
-              <th>詳細</th>
-              <th>状態</th>
-              <th>編集</th>
+        <table class="todo-table">
+          <tr>
+            <th>ID</th>
+            <th>タスク名</th>
+            <th>詳細</th>
+            <th>状態</th>
+            <th>編集</th>
+          </tr>
+          <!--
+            v-forで要素を繰り返し表示する設定を行なっている
+            JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
+          -->
+          <tbody>
+            <tr v-for="(todo, idx) in todoItems" :key="idx">
+              <td>{{ todo.id }}</td>
+              <td>{{ todo.task }}</td>
+              <td>{{ todo.detail }}</td>
+              <td>{{ todo.state }}</td>
+              <td>
+                <!-- <my-button @click="editTodo(idx)" label="編集" /> -->
+                <my-button @click="editTodo(todo.id)" label="編集" />
+                <delete-button @click="deleteTodo(todo.id)" label="削除" />
+              </td>
             </tr>
-            <!--
-              v-forで要素を繰り返し表示する設定を行なっている
-              JavaScriptによるDOM操作と異なり、データが変われば自動で見た目も変わる。
-            -->
-            <tbody>
-              <tr v-for="(todo, idx) in todoList" :key="idx">
-                <td>{{ idx }}</td>
-                <td>{{ todo.task }}</td>
-                <td>{{ todo.detail }}</td>
-                <td>{{ todo.state }}</td>
-                <td>
-                  <Button @click="editTodo(idx)" label="編集" />
-                  <delete-button @click="deleteTodo(idx)" label="削除" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Button from '~/components/Button.vue';
 import CancelButton from '~/components/CancelButton.vue';
 import DeleteButton from '~/components/DeleteButton.vue';
+import MyButton from '~/components/MyButton.vue';
 
 export default {
+  // このvueファイルで使用する
+  // components(vueファイル)を指定する
   components: {
-    Button,
     CancelButton,
-    DeleteButton
+    DeleteButton,
+    MyButton
   },
   data() {
     return {
       title: 'TODOアプリ',
-      todoList: [
-        { task: '掃除する', detail: '部屋の掃除を本日中にやる', state: '未着手' },
-        { task: '課題やる', detail: '線形代数の課題を今週中に', state: '完了' },
-        { task: '寝る', detail: '8時間寝る', state: '作業中' }
-      ],
-      // 編集用のdataを追加する
+      // 追加用のdataを追加する
       editTask: '',
       editDetail: '',
-      editState: '',
+      editState: '未着手', // 状態を追加
       // 編集用のデータ
       editItem: {
         id: null, // 何番目の要素を編集するのか
         task: '', // 編集するタスク名
         detail: '', // 編集するタスク詳細
-        state: ''
+        state: '' // 編集する状態
       },
       // trueで編集の要素が表示されて、falseで要素が表示されない
       displayEdit: false,
@@ -122,18 +132,20 @@ export default {
   methods: {
     // todoリストの要素を追加する
     addTodo() {
-      const todo = { task: this.editTask, detail: this.editDetail };
-      this.todoList.push(todo);
+      const todo = {
+        task: this.editTask,
+        detail: this.editDetail,
+        state: this.editState
+      };
+      // dispatchでactionsを呼び出す 'storeのファイル名/actionの名前'
+      this.$store.dispatch('todo/addTodoItems', todo);
       // 追加後にinputの中身を空にする
       this.editTask = '';
       this.editDetail = '';
     },
     // todoリストの要素を削除する
     deleteTodo(id) {
-      // id番目の要素を削除
-      // Array.splice(a, b)
-      // a番目の要素からb個要素を取り出す
-      this.todoList.splice(id, 1);
+      this.$store.dispatch('todo/deleteTodoItem', id);
     },
     // id番目の要素を編集する
     editTodo(id) {
@@ -195,9 +207,16 @@ export default {
   color: #35495e;
   letter-spacing: 1px;
 }
-.flex {
-  display: flex;
+
+.todo-input {
+  width: 30%;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 3px;
+  border: 2px solid #ddd;
+  box-sizing: border-box;
 }
+
 .mb-30 {
   margin-bottom: 30px;
 }
@@ -210,12 +229,10 @@ export default {
   border-collapse: collapse;
   width: 100%;
 }
-
 .todo-table td, .todo-table th {
   border: 1px solid #ddd;
   padding: 8px;
 }
-
 .todo-table tr:hover {
   background-color: #ddd;
 }
@@ -226,15 +243,6 @@ export default {
   text-align: left;
   background-color: #007bff;
   color: white;
-}
-
-.todo-input {
-  width: 30%;
-  padding: 10px 15px;
-  font-size: 16px;
-  border-radius: 3px;
-  border: 2px solid #ddd;
-  box-sizing: border-box;
 }
 
 .state-select {

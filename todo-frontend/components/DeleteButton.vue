@@ -4,11 +4,14 @@
 
 <script>
 export default {
+  // 親コンポーネントから渡される値
   props: {
     label: { type: String, required: true }
   },
   methods: {
     click() {
+      // 親コンポーネントの関数を実行する
+      // this.$emit('関数名');
       this.$emit('click');
     }
   }

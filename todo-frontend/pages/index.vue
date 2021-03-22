@@ -5,7 +5,9 @@
         <!-- 通常のHTMLとは異なりvueファイルでは{{ 変数名 }}でJavaScriptの変数の値をそのまま表示できる -->
         {{ title }}
       </h1>
-      <h2>タスクを管理します。</h2>
+      <div>
+        <nuxt-link to="/manage">管理画面を開く</nuxt-link>
+      </div>
       <div>
         <div>
           <!-- タスク名を入力するinput -->
@@ -99,11 +101,6 @@ export default {
   data() {
     return {
       title: 'TODOアプリ',
-      todoList: [
-        { task: '掃除する', detail: '部屋の掃除を本日中にやる', state: '未着手' },
-        { task: '課題やる', detail: '線形代数の課題を今週中に', state: '作業中' },
-        { task: '寝る', detail: '8時間寝る', state: '完了' }
-      ],
       // 追加用のdataを追加する
       editTask: '',
       editDetail: '',
@@ -117,7 +114,6 @@ export default {
       },
       // trueで編集の要素が表示されて、falseで要素が表示されない
       displayEdit: false,
-      // 状態の選択肢
       stateList: ['未着手', '作業中', '完了']
     }
   },
@@ -221,6 +217,13 @@ export default {
   box-sizing: border-box;
 }
 
+.mb-30 {
+  margin-bottom: 30px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
+
 .todo-table {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
@@ -233,6 +236,7 @@ export default {
 .todo-table tr:hover {
   background-color: #ddd;
 }
+
 .todo-table th {
   padding-top: 12px;
   padding-bottom: 12px;
@@ -241,10 +245,14 @@ export default {
   color: white;
 }
 
-.mb-8 {
-  margin-bottom: 8px;
-}
-.mb-30 {
-  margin-bottom: 30px;
+.state-select {
+  width: 30%;
+  padding: .375rem 2.25rem .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: .25rem;
 }
 </style>

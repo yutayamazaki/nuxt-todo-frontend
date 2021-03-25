@@ -73,8 +73,7 @@
               <td>{{ todo.detail }}</td>
               <td>{{ todo.state }}</td>
               <td>
-                <!-- <my-button @click="editTodo(idx)" label="編集" /> -->
-                <my-button @click="editTodo(todo.id)" label="編集" />
+                <my-button @click="editTodo(todo)" label="編集" />
                 <delete-button @click="deleteTodo(todo.id)" label="削除" />
               </td>
             </tr>
@@ -117,6 +116,10 @@ export default {
       stateList: ['未着手', '作業中', '完了']
     }
   },
+  // ページ読み込み時にDjangoからデータを取得する
+  async mounted() {
+    await this.$store.dispatch('todo/fetchTodoItems');
+  },
   // 関数のように書いて変数のようにアクセスする
   // template内の{{ }}の表示をスッキリさせたい場合などで利用
   computed: {
@@ -148,15 +151,14 @@ export default {
       this.$store.dispatch('todo/deleteTodoItem', id);
     },
     // id番目の要素を編集する
-    editTodo(id) {
+    editTodo(todo) {
       // 編集のHTML要素を表示
       this.displayEdit = true;
-      // 編集するtodoのタスク名と詳細をinputのデフォルト値に設定する
       this.editItem = {
-        id: id,
-        task: this.todoList[id].task,
-        detail: this.todoList[id].detail,
-        state: this.todoList[id].state
+        id: todo.id,
+        task: todo.task,
+        detail: todo.detail,
+        state: todo.state
       }
     },
     // 編集をキャンセルする
@@ -166,16 +168,14 @@ export default {
     },
     // 編集結果を保存する
     submitEdit() {
-      // 何番目の要素の変更を保存するか
-      const id = this.editItem.id;
       // 変更されたtodoデータ
       const newTodo = {
         task: this.editItem.task,
         detail: this.editItem.detail,
-        state: this.editItem.state
+        state: this.editItem.state,
+        id: this.editItem.id
       }
-      // id番目の要素を編集後のデータに変更する
-      this.todoList[id] = newTodo;
+      this.$store.dispatch('todo/updateTodoItem', newTodo);
       this.displayEdit = false; // 編集の要素を見えないように
     }
   }

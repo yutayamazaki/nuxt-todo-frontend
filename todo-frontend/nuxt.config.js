@@ -17,6 +17,7 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
+    '@/assets/css/global.css'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
@@ -32,8 +33,20 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy',
   ],
-
+  // Djangoと通信を行うために必要なaxiosの設定
+  axios: {
+    prefix: '',
+    proxy: true
+  },
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8000/',
+      changeOrigin: true
+    },
+  },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   }

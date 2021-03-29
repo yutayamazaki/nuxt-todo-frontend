@@ -6,19 +6,22 @@
         {{ title }}
       </h1>
       <div>
-        <nuxt-link to="/manage">管理画面を開く</nuxt-link>
-      </div>
-      <div>
         <div>
           <!-- タスク名を入力するinput -->
           <p>タスク名を入力</p>
           <input class="todo-input mb-8" v-model="editTask">
           <!-- 詳細を入力するinput -->
           <p>詳細を入力</p>
-          <!-- v-model="変数名" で変数にそのデータを反映させる -->
           <input class="todo-input mb-8" v-model="editDetail">
+          <!-- v-model="変数名" で変数にそのデータを反映させる -->
+          <p>期限を入力</p>
+          <date-picker
+            placeholder="YYYY/MM/DD"
+            format="yyyy/MM/dd"
+            v-model="editDeadline"
+          />
           <p>状態を選択</p>
-          <select v-model="editState">
+          <select v-model="editState" class="mb-8">
             <option
               v-for="(state, idx) in stateList"
               :key="idx"
@@ -32,12 +35,17 @@
         <!-- v-ifで要素の表示・非表示を切り替える -->
         <div v-if="displayEdit" class="mb-30">
           <h3>タスクの編集</h3>
-          <p>{{ editPlusOne }}番目の要素を編集します</p>
           <div>
             <p>タスク名</p>
             <input class="todo-input mb-8" v-model="editItem.task">
             <p>詳細</p>
             <input class="todo-input mb-8" v-model="editItem.detail">
+            <p>期限を入力</p>
+            <date-picker
+              placeholder="YYYY/MM/DD"
+              format="yyyy/MM/dd"
+              v-model="editItem.deadline"
+            />
             <p>状態</p>
             <select v-model="editItem.state">
               <option
@@ -59,6 +67,7 @@
             <th>ID</th>
             <th>タスク名</th>
             <th>詳細</th>
+            <th>期限</th>
             <th>状態</th>
             <th>編集</th>
           </tr>
@@ -71,6 +80,7 @@
               <td>{{ todo.id }}</td>
               <td>{{ todo.task }}</td>
               <td>{{ todo.detail }}</td>
+              <td>{{ formatDate(todo.deadline) }}</td>
               <td>{{ todo.state }}</td>
               <td>
                 <my-button @click="editTodo(todo)" label="編集" />
@@ -104,11 +114,13 @@ export default {
       editTask: '',
       editDetail: '',
       editState: '未着手', // 状態を追加
+      editDeadline: new Date(),
       // 編集用のデータ
       editItem: {
         id: null, // 何番目の要素を編集するのか
         task: '', // 編集するタスク名
         detail: '', // 編集するタスク詳細
+        deadline: new Date(), // 編集する期限
         state: '' // 編集する状態
       },
       // trueで編集の要素が表示されて、falseで要素が表示されない
@@ -126,25 +138,31 @@ export default {
     todoItems() {
       // store/todo.jsのtodoItemsを取り出す
       return this.$store.state.todo.todoItems;
-    },
-    editPlusOne() {
-      return this.editItem.id + 1;
     }
   },
   // 必要な処理はmethodsに関数を記述してそれを利用する
   methods: {
+    formatDate(date) {
+      // nullの場合はformatしない
+      if (date === null) return date;
+      // '2021-03-25' -> ['2021', '03', '25']
+      const dateArray = date.split('-');
+      return dateArray[0] + '年' + parseInt(dateArray[1]) + '月' + dateArray[2] + '日';
+    },
     // todoリストの要素を追加する
     addTodo() {
       const todo = {
         task: this.editTask,
         detail: this.editDetail,
-        state: this.editState
+        state: this.editState,
+        deadline: this.editDeadline.toISOString().split('T')[0]
       };
       // dispatchでactionsを呼び出す 'storeのファイル名/actionの名前'
       this.$store.dispatch('todo/addTodoItems', todo);
       // 追加後にinputの中身を空にする
       this.editTask = '';
       this.editDetail = '';
+      this.editDeadline = new Date();
     },
     // todoリストの要素を削除する
     deleteTodo(id) {
@@ -158,6 +176,7 @@ export default {
         id: todo.id,
         task: todo.task,
         detail: todo.detail,
+        deadline: todo.deadline,
         state: todo.state
       }
     },
@@ -172,8 +191,12 @@ export default {
       const newTodo = {
         task: this.editItem.task,
         detail: this.editItem.detail,
+        deadline: this.editItem.deadline,
         state: this.editItem.state,
         id: this.editItem.id
+      }
+      if (typeof this.editItem.deadline === 'object') {
+        newTodo.deadline = newTodo.deadline.toISOString().split('T')[0]
       }
       this.$store.dispatch('todo/updateTodoItem', newTodo);
       this.displayEdit = false; // 編集の要素を見えないように

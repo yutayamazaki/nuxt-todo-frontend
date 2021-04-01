@@ -6,34 +6,38 @@
         {{ title }}
       </h1>
       <div>
-        <div>
-          <!-- タスク名を入力するinput -->
-          <p>タスク名を入力</p>
-          <input class="todo-input mb-8" v-model="editTask">
-          <!-- 詳細を入力するinput -->
-          <p>詳細を入力</p>
-          <input class="todo-input mb-8" v-model="editDetail">
-          <!-- v-model="変数名" で変数にそのデータを反映させる -->
-          <p>期限を入力</p>
-          <date-picker
-            placeholder="YYYY/MM/DD"
-            format="yyyy/MM/dd"
-            v-model="editDeadline"
-          />
-          <p>状態を選択</p>
-          <select v-model="editState" class="mb-8">
-            <option
-              v-for="(state, idx) in stateList"
-              :key="idx"
-            >
-              {{ state }}
-            </option>
-          </select>
+        <div class="mx-auto width-04 text-left">
+          <div>
+            <!-- タスク名を入力するinput -->
+            <p>タスク名を入力</p>
+            <input class="todo-input mb-8" v-model="editTask">
+            <!-- 詳細を入力するinput -->
+            <p>詳細を入力</p>
+            <input class="todo-input mb-8" v-model="editDetail">
+            <!-- v-model="変数名" で変数にそのデータを反映させる -->
+            <p>期限を入力</p>
+            <date-picker
+              placeholder="YYYY/MM/DD"
+              format="yyyy/MM/dd"
+              v-model="editDeadline"
+              input-class="todo-input mb-8"
+              style="text-align: center;"
+            />
+            <p>状態を選択</p>
+            <select v-model="editState" class="mb-16 todo-input">
+              <option
+                v-for="(state, idx) in stateList"
+                :key="idx"
+              >
+                {{ state }}
+              </option>
+            </select>
+          </div>
+          <my-button @click="addTodo" label="追加" class="mb-30" style="width: 100%;" />
         </div>
-        <my-button @click="addTodo" label="追加" class="mb-30" />
 
         <!-- v-ifで要素の表示・非表示を切り替える -->
-        <div v-if="displayEdit" class="mb-30">
+        <div v-if="displayEdit" class="mb-30 mx-auto width-04 text-left">
           <h3>タスクの編集</h3>
           <div>
             <p>タスク名</p>
@@ -45,9 +49,11 @@
               placeholder="YYYY/MM/DD"
               format="yyyy/MM/dd"
               v-model="editItem.deadline"
+              input-class="todo-input mb-8"
+              style="text-align: center;"
             />
             <p>状態</p>
-            <select v-model="editItem.state">
+            <select v-model="editItem.state" class="mb-16 todo-input">
               <option
                 v-for="(state, idx) in stateList"
                 :key="idx"
@@ -232,7 +238,7 @@ export default {
 }
 
 .todo-input {
-  width: 30%;
+  width: 100%;
   padding: 10px 15px;
   font-size: 16px;
   border-radius: 3px;
@@ -245,6 +251,9 @@ export default {
 }
 .mb-8 {
   margin-bottom: 8px;
+}
+.mb-16 {
+  margin-bottom: 16px;
 }
 
 .todo-table {

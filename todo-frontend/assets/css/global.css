@@ -1,0 +1,29 @@
+.text-left {
+  text-align: left;
+}
+.text-white {
+  color: white;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.width-04 {
+  width: 40%;
+}
+
+.bg-gray {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243, 244, 246);
+}
+.bg-white {
+  --tw-bg-opacity: 1;
+  background-color: 
+  rgb(255, 255, 255);
+}
+.bg-green {
+  --tw-bg-opacity: 1;
+  background-color: rgb(16, 185, 129);
+}

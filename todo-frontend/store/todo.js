@@ -60,6 +60,7 @@ export const actions = {
   async fetchTodoItems({ commit }) {
     // Djangoのhttp://localhost:8000/todo/todos/にTodoの一覧を取得するリクエストを送信
     const todoItems = await this.$axios.get('/todo/todos/');
+    console.log(todoItems.data);
     commit('setTodoItems', todoItems.data);
   }
 };
